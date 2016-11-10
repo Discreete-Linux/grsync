@@ -1,0 +1,47 @@
+Index: grsync-1.2.5/src/callbacks.c
+===================================================================
+--- grsync-1.2.5.orig/src/callbacks.c
++++ grsync-1.2.5/src/callbacks.c
+@@ -472,7 +472,7 @@ gboolean load_groups(gchar *session) {
+ void show_browse_source(GtkButton *button, gpointer user_data) {
+ 	GtkWidget *dialog;
+ 	gint retval;
+-	gchar *filename;
++	gchar *filename, *tmp;
+ 	gboolean browse_files = get_checkbox("check_browse_files");
+ 	GtkFileChooserAction action = browse_files ? GTK_FILE_CHOOSER_ACTION_OPEN : GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+ 	gchar *curr_path = (gchar*) gtk_entry_get_text((GtkEntry*) gtk_builder_get_object(builder, "text_source"));
+@@ -490,9 +490,10 @@ void show_browse_source(GtkButton *butto
+ 	retval = gtk_dialog_run(GTK_DIALOG(dialog));
+ 	if (retval == GTK_RESPONSE_ACCEPT || retval == GTK_RESPONSE_OK) {
+ 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+-		// tmp = g_strconcat(filename, browse_files ? "" : "/", NULL);
+-		gtk_entry_set_text((GtkEntry*) gtk_builder_get_object(builder, "text_source"), filename);
++		tmp = g_strconcat(filename, browse_files ? "" : "/", NULL);
++		gtk_entry_set_text((GtkEntry*) gtk_builder_get_object(builder, "text_source"), tmp);
+ 		g_free(filename);
++		g_free(tmp);
+ 	}
+ 	gtk_widget_destroy(dialog);
+ 	g_free(curr_folder);
+@@ -502,7 +503,7 @@ void show_browse_source(GtkButton *butto
+ void show_browse_dest(GtkButton *button, gpointer user_data) {
+ 	GtkWidget *dialog;
+ 	gint retval;
+-	gchar *filename;
++	gchar *filename, *tmp;
+ 	gboolean browse_files = get_checkbox("check_browse_files");
+ 	GtkFileChooserAction action = browse_files ? GTK_FILE_CHOOSER_ACTION_OPEN : GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
+ 	gchar *curr_path = (gchar*) gtk_entry_get_text((GtkEntry*) gtk_builder_get_object(builder, "text_dest"));
+@@ -520,8 +521,10 @@ void show_browse_dest(GtkButton *button,
+ 	retval = gtk_dialog_run(GTK_DIALOG(dialog));
+ 	if (retval == GTK_RESPONSE_ACCEPT || retval == GTK_RESPONSE_OK) {
+ 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+-		gtk_entry_set_text((GtkEntry*) gtk_builder_get_object(builder, "text_dest"), filename);
++		tmp = g_strconcat(filename, browse_files ? "" : "/", NULL);
++		gtk_entry_set_text((GtkEntry*) gtk_builder_get_object(builder, "text_dest"), tmp);
+ 		g_free(filename);
++		g_free(tmp);
+ 	}
+ 	gtk_widget_destroy(dialog);
+ 	g_free(curr_folder);

@@ -1,0 +1,14 @@
+Package: grsync
+Version: 1.2.5-1dsctl1
+Architecture: amd64
+Maintainer: Martijn van Brummelen <martijn@brumit.nl>
+Installed-Size: 697
+Depends: libatk1.0-0 (>= 1.12.4), libc6 (>= 2.4), libcairo2 (>= 1.2.4), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.2.1), libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.35.9), libgtk2.0-0 (>= 2.12.0), libpango-1.0-0 (>= 1.14.0), libpangocairo-1.0-0 (>= 1.14.0), libpangoft2-1.0-0 (>= 1.14.0), rsync
+Recommends: ssh-askpass
+Section: x11
+Priority: optional
+Homepage: http://www.opbyte.it/grsync/
+Description: GTK+ frontend for rsync
+ grsync is a simple graphical interface using GTK2 for the rsync command line
+ program. It currently supports only a limited set of the most important rsync
+ features, but can be used effectively for local directory synchronization.

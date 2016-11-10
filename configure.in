@@ -1,0 +1,106 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(configure.in)
+AM_INIT_AUTOMAKE(grsync, 1.2.5)
+AM_CONFIG_HEADER(config.h)
+AM_MAINTAINER_MODE
+
+CFLAGS="-Wall -rdynamic $CFLAGS"
+LIBS="-lm $LIBS"
+
+AC_USE_SYSTEM_EXTENSIONS
+AC_ISC_POSIX
+AC_PROG_CC
+AM_PROG_CC_STDC
+AC_HEADER_STDC
+
+PKG_CHECK_EXISTS(maemo-version, [VERSIONOK=`$PKG_CONFIG --atleast-version=5 maemo-version`
+								 if test x"$VERSIONOK" != x; then
+									 AC_MSG_ERROR([You need at least Maemo 5.x for this release of Grsync])
+								 else
+									 AC_MSG_NOTICE([Configuring for Maemo 5.x platform])
+									 MAEMO=1
+									 XMLFILE="grsync-maemo-ui.xml"
+									 AC_DEFINE(MAEMO, [1], [Compile for Maemo platform.])
+									 AC_DEFINE_UNQUOTED(XMLFILE, ["$XMLFILE"], [UI Description XML File])
+									 pkg_modules="gtk+-2.0 >= 2.14.0 gnome-vfs-2.0 gconf-2.0 hildon-1 hildon-fm-2 libosso osso-af-settings"
+									 OTHER_DESKTOP_ENTRIES="X-Osso-Service=it.opbyte.${PACKAGE}
+X-Osso-Type=application/x-executable
+Icon=${PACKAGE}"
+									 MIMEINFO_XMLNS="xmlns='http://www.freedesktop.org/standards/shared-mime-info' xmlns:osso='http://nokia.com/osso/mime-categories'"
+									 MIME_OSSOCAT="<osso:category name='documents'/>"
+								 fi],
+				 AC_MSG_NOTICE([Configuring for plain GTK+])
+				 MAEMO=0
+				 XMLFILE="grsync.glade"
+				 AC_DEFINE_UNQUOTED(XMLFILE, ["$XMLFILE"], [UI Description XML File])
+pkg_modules="gtk+-2.0 >= 2.16.0"
+				 OTHER_DESKTOP_ENTRIES="Icon=grsync.png"
+				 MIMEINFO_XMLNS="xmlns='http://www.freedesktop.org/standards/shared-mime-info'"
+				 MIME_OSSOCAT=""
+				)
+
+PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
+AC_SUBST(PACKAGE_CFLAGS)
+AC_SUBST(PACKAGE_LIBS)
+AC_SUBST(OTHER_DESKTOP_ENTRIES)
+AC_SUBST(MIMEINFO_XMLNS)
+AC_SUBST(MIME_OSSOCAT)
+AC_SUBST(MAEMO)
+AC_SUBST(XMLFILE)
+
+AC_ARG_ENABLE(unity,
+	AS_HELP_STRING([--enable-unity],[Build support for integration in Unity launcher [[default=yes]]]),
+	[enable_unity=$enableval],
+	[enable_unity="yes"])
+if test x"$enable_unity" = "xyes"; then
+	if test "x$with_localinstall" = "xyes"; then
+		DBUSSERVICEDIR="${datadir}/dbus-1/services/"
+	else
+		DBUSSERVICEDIR=`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`
+	fi
+	AC_SUBST(DBUSSERVICEDIR)
+
+	PKG_CHECK_MODULES(UNITY,
+		dee-1.0
+		dbusmenu-glib-0.4
+		unity)
+	AC_SUBST(UNITY_CFLAGS)
+	AC_SUBST(UNITY_LIBS)
+	AC_DEFINE(HAVE_UNITY, 1, [Unity launcher support])
+	CFLAGS="$UNITY_CFLAGS $CFLAGS"
+	LIBS="$UNITY_LIBS $LIBS"
+fi
+AM_CONDITIONAL(HAVE_UNITY, test x"$enable_unity" = xyes)
+
+if test x"$MAEMO" = x1; then
+	desktopentrydir=`$PKG_CONFIG osso-af-settings --variable=desktopentrydir`
+	dbusservicedir=`$PKG_CONFIG osso-af-settings --variable=dbusservicedir`
+	hildonpixmapdir=`$PKG_CONFIG osso-af-settings --variable=hildonpixmapdir`
+	AC_SUBST(desktopentrydir)
+	AC_SUBST(dbusservicedir)
+	AC_SUBST(hildonpixmapdir)
+	AC_DEFINE_UNQUOTED(HILDONPIXMAPDIR, ["$hildonpixmapdir"], [Define default Maemo pixmap directory])
+fi
+AM_CONDITIONAL([MAEMO], [test x$MAEMO = x1])
+
+AC_PROG_INTLTOOL()
+
+GETTEXT_PACKAGE=grsync
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
+
+dnl Add the languages which your application supports here.
+ALL_LINGUAS="nl_NL it_IT zh_CN fr_FR sv_SE nb_NO tr_TR ru_RU de_DE es_ES cs_CZ gl_ES ca_ES pt_BR id_ID hr_HR zh_TW hu_HU"
+AM_GLIB_GNU_GETTEXT
+
+AC_OUTPUT([
+Makefile
+src/Makefile
+po/Makefile.in
+grsync.spec
+grsync.desktop
+grsync.xml
+it.opbyte.grsync.service
+])
+
